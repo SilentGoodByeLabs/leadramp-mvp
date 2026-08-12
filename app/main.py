@@ -23,17 +23,15 @@ from app.ai.scorer import qualify_lead
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create database tables.
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=APP_NAME,
-    version="0.3.0",
-    description="AI lead intake and follow-up engine for service businesses.",
+    version="0.3.1",
+    description="Lead intake and follow-up engine for service businesses.",
 )
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "app" / "templates"))
-
 
 @app.get("/health")
 def health():
@@ -44,7 +42,6 @@ def health():
         "ai_enabled": bool(os.getenv("GEMINI_API_KEY")),
     }
 
-
 def process_lead_with_ai(
     lead_id: int,
     name: str,
@@ -52,13 +49,9 @@ def process_lead_with_ai(
     message: str,
     source: str,
 ):
-    """
-    Background task that qualifies a lead using AI.
-    Used by the JSON API.
-    """
     db = SessionLocal()
     try:
-        logger.info(f"Starting AI qualification for Lead {lead_id}")
+        logger.info(f"Starting lead qualification for Lead {lead_id}")
         ai_result = qualify_lead(name, company, message, source)
 
         lead = db.query(Lead).filter(Lead.id == lead_id).first()
@@ -69,10 +62,9 @@ def process_lead_with_ai(
             db.commit()
             logger.info(f"Lead {lead_id} scored: {lead.score}")
     except Exception as e:
-        logger.error(f"Background AI task failed: {e}")
+        logger.error(f"Background lead task failed: {e}")
     finally:
         db.close()
-
 
 @app.post("/leads", response_model=LeadRead, status_code=status.HTTP_201_CREATED)
 def create_lead(
@@ -98,7 +90,6 @@ def create_lead(
 
     return lead
 
-
 @app.get("/leads", response_model=List[LeadRead])
 def list_leads(limit: int = 20, db: Session = Depends(get_db)):
     safe_limit = min(max(limit, 1), 100)
@@ -108,7 +99,6 @@ def list_leads(limit: int = 20, db: Session = Depends(get_db)):
         .limit(safe_limit)
         .all()
     )
-
 
 def empty_form():
     return {
@@ -120,7 +110,6 @@ def empty_form():
         "message": "",
     }
 
-
 @app.get("/demo", response_class=HTMLResponse)
 def demo_page(request: Request, db: Session = Depends(get_db)):
     recent_leads = (
@@ -131,16 +120,15 @@ def demo_page(request: Request, db: Session = Depends(get_db)):
     )
 
     return templates.TemplateResponse(
-        "demo.html",
-        {
-            "request": request,
+        request=request,
+        name="demo.html",
+        context={
             "lead": None,
             "error": None,
             "recent_leads": recent_leads,
             "form": empty_form(),
         },
     )
-
 
 @app.post("/demo", response_class=HTMLResponse)
 def demo_submit(
@@ -192,7 +180,6 @@ def demo_submit(
         db.commit()
         db.refresh(lead)
 
-        # For the demo page, qualify immediately so the client sees the result.
         ai_result = qualify_lead(
             lead.name,
             lead.company or "",
@@ -217,9 +204,9 @@ def demo_submit(
     response_status = status.HTTP_200_OK if not error else status.HTTP_422_UNPROCESSABLE_ENTITY
 
     return templates.TemplateResponse(
-        "demo.html",
-        {
-            "request": request,
+        request=request,
+        name="demo.html",
+        context={
             "lead": lead,
             "error": error,
             "recent_leads": recent_leads,

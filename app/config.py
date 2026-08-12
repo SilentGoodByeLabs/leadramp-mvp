@@ -11,7 +11,7 @@ LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 load_dotenv(BASE_DIR / ".env")
 
-APP_NAME = os.getenv("APP_NAME", "AI Lead Intake Engine")
+APP_NAME = os.getenv("APP_NAME", "LeadRamp")
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DATA_DIR / 'app.db'}")
 

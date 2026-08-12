@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Lead Intake Demo</title>
+    <title>LeadRamp Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-900">
     <div class="max-w-6xl mx-auto p-6">
         <div class="mb-8">
-            <h1 class="text-3xl font-bold">AI Lead Intake Demo</h1>
+            <h1 class="text-3xl font-bold">LeadRamp Demo</h1>
             <p class="text-slate-600 mt-1">
-                Submit a lead. The system captures it, qualifies it with AI, and prepares it for follow-up.
+                Submit a lead. The system captures it, automatically qualifies it, and prepares it for follow-up.
             </p>
         </div>
 
@@ -37,7 +37,7 @@
                     {% else %}
                         bg-red-100 text-red-800
                     {% endif %}">
-                    AI Score: {{ score }}
+                    Lead Score: {{ score }}
                 </div>
             </div>
 
@@ -55,7 +55,7 @@
                 </div>
 
                 <div class="rounded-lg bg-slate-50 p-4">
-                    <p class="text-xs uppercase text-slate-500">AI Sales Summary</p>
+                    <p class="text-xs uppercase text-slate-500">Sales Summary</p>
                     <p class="mt-1">{{ lead.ai_summary or "Pending AI summary." }}</p>
                 </div>
             </div>

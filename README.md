@@ -1,7 +1,7 @@
-# AI Lead Intake Engine
+# LeadRamp
 
-Commercial MVP for capturing, validating, storing, and processing inbound business leads.
+Commercial MVP for capturing, validating, scoring, and routing inbound business leads.
 
-This system is designed to help businesses respond faster to leads and reduce manual data entry.
+LeadRamp helps service businesses respond faster to leads, reduce manual data entry, and prioritize high-intent prospects.
 
 Status: MVP core in development.

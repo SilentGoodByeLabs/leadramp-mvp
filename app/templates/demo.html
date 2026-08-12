@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Lead Intake Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-900">
+    <div class="max-w-6xl mx-auto p-6">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold">AI Lead Intake Demo</h1>
+            <p class="text-slate-600 mt-1">
+                Submit a lead. The system captures it, qualifies it with AI, and prepares it for follow-up.
+            </p>
+        </div>
+
+        {% if error %}
+        <div class="mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-red-800">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        {% if lead %}
+        {% set score = lead.score if lead.score is not none else 0 %}
+        <div class="mb-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-semibold">Lead captured: {{ lead.name }}</h2>
+                    <p class="text-slate-600">{{ lead.company or "No company provided" }}</p>
+                </div>
+                <div class="px-4 py-2 rounded-full text-sm font-bold
+                    {% if score >= 70 %}
+                        bg-green-100 text-green-800
+                    {% elif score >= 40 %}
+                        bg-yellow-100 text-yellow-800
+                    {% else %}
+                        bg-red-100 text-red-800
+                    {% endif %}">
+                    AI Score: {{ score }}
+                </div>
+            </div>
+
+            <div class="mt-4 grid gap-4 md:grid-cols-3">
+                <div class="rounded-lg bg-slate-50 p-4">
+                    <p class="text-xs uppercase text-slate-500">Contact</p>
+                    <p class="mt-1 font-medium">{{ lead.email or "No email" }}</p>
+                    <p class="font-medium">{{ lead.phone or "No phone" }}</p>
+                </div>
+
+                <div class="rounded-lg bg-slate-50 p-4">
+                    <p class="text-xs uppercase text-slate-500">Status</p>
+                    <p class="mt-1 font-medium capitalize">{{ lead.status }}</p>
+                    <p class="text-sm text-slate-600">Source: {{ lead.source }}</p>
+                </div>
+
+                <div class="rounded-lg bg-slate-50 p-4">
+                    <p class="text-xs uppercase text-slate-500">AI Sales Summary</p>
+                    <p class="mt-1">{{ lead.ai_summary or "Pending AI summary." }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="grid gap-6 lg:grid-cols-2">
+            <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold mb-4">New Lead</h2>
+
+                <form method="post" action="/demo" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="name">
+                            Name *
+                        </label>
+                        <input
+                            id="name"
+                            name="name"
+                            required
+                            minlength="2"
+                            maxlength="120"
+                            value="{{ form.name or '' }}"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Sarah Jenkins"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="email">
+                            Email
+                        </label>
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            maxlength="255"
+                            value="{{ form.email or '' }}"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="sarah@jenkinsrealty.com"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="phone">
+                            Phone
+                        </label>
+                        <input
+                            id="phone"
+                            name="phone"
+                            maxlength="50"
+                            value="{{ form.phone or '' }}"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="+15551234567"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="company">
+                            Company
+                        </label>
+                        <input
+                            id="company"
+                            name="company"
+                            maxlength="180"
+                            value="{{ form.company or '' }}"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Jenkins Realty Group"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="source">
+                            Lead Source
+                        </label>
+                        <select
+                            id="source"
+                            name="source"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="demo_page" {% if form.source == "demo_page" %}selected{% endif %}>Demo Page</option>
+                            <option value="website_form" {% if form.source == "website_form" %}selected{% endif %}>Website Form</option>
+                            <option value="facebook_ad" {% if form.source == "facebook_ad" %}selected{% endif %}>Facebook Ad</option>
+                            <option value="google_search" {% if form.source == "google_search" %}selected{% endif %}>Google Search</option>
+                            <option value="referral" {% if form.source == "referral" %}selected{% endif %}>Referral</option>
+                            <option value="manual_entry" {% if form.source == "manual_entry" %}selected{% endif %}>Manual Entry</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="message">
+                            Message
+                        </label>
+                        <textarea
+                            id="message"
+                            name="message"
+                            rows="5"
+                            maxlength="5000"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="I need faster lead follow-up. Please send pricing."
+                        >{{ form.message or '' }}</textarea>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700"
+                    >
+                        Capture & Qualify Lead
+                    </button>
+                </form>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold mb-4">Recent Leads</h2>
+
+                {% if recent_leads %}
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-slate-500">
+                                <th class="py-2 pr-3">Name</th>
+                                <th class="py-2 pr-3">Score</th>
+                                <th class="py-2 pr-3">Status</th>
+                                <th class="py-2">Summary</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for recent in recent_leads %}
+                            {% set recent_score = recent.score if recent.score is not none else 0 %}
+                            <tr class="border-b border-slate-100 align-top">
+                                <td class="py-3 pr-3 font-medium">{{ recent.name }}</td>
+                                <td class="py-3 pr-3">{{ recent_score }}</td>
+                                <td class="py-3 pr-3 capitalize">{{ recent.status }}</td>
+                                <td class="py-3 text-slate-600">{{ recent.ai_summary or "Pending..." }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-slate-600">No leads yet. Submit the first lead.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -4,7 +4,7 @@ SQLAlchemy
 python-dotenv
 email-validator
 pydantic
-
+google-genai
 jinja2
 python-multipart
 gunicorn

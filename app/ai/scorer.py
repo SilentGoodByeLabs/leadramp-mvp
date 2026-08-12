@@ -1,14 +1,9 @@
 import os
 import json
 import logging
-import google.generativeai as genai
+from google import genai
 
 logger = logging.getLogger(__name__)
-
-try:
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-except Exception as e:
-    logger.error(f"Gemini configuration error: {e}")
 
 def qualify_lead(name: str, company: str, message: str, source: str) -> dict:
     api_key = os.getenv("GEMINI_API_KEY")
@@ -37,8 +32,15 @@ def qualify_lead(name: str, company: str, message: str, source: str) -> dict:
     """
 
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        response = model.generate_content(prompt)
+        # Initialize the new Google Gen AI client
+        client = genai.Client(api_key=api_key)
+        
+        # Use the latest fast model
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
+        
         raw_text = response.text.strip()
         
         if raw_text.startswith("```"):

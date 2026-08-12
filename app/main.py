@@ -37,6 +37,12 @@ app = FastAPI(
 templates = Jinja2Templates(directory=str(BASE_DIR / "app" / "templates"))
 
 
+from fastapi.responses import RedirectResponse
+
+@app.get("/", include_in_schema=False)
+def read_root():
+    return RedirectResponse(url="/demo")
+
 @app.get("/health")
 def health():
     return {

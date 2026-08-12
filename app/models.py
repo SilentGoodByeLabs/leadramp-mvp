@@ -19,12 +19,14 @@ class Lead(Base):
     email = Column(String(255), nullable=True, index=True)
     phone = Column(String(50), nullable=True)
     company = Column(String(180), nullable=True)
-    source = Column(String(120), nullable=False, default="demo_form", index=True)
+    source = Column(String(120), nullable=False, default="demo_page", index=True)
     message = Column(Text, nullable=True)
 
     status = Column(String(50), nullable=False, default="new", index=True)
     score = Column(Float, nullable=True)
     ai_summary = Column(Text, nullable=True)
+    follow_up = Column(Text, nullable=True)
+    qualified_seconds = Column(Float, nullable=True)
 
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at = Column(

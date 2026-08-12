@@ -15,7 +15,9 @@ SAMPLE_LEADS = [
         "message": "We are getting 50 leads a day and my team is forgetting to call them. I need automation ASAP. What is your pricing?",
         "score": 92,
         "ai_summary": "High urgency. 50 leads/day with slow follow-up. Asked for pricing. Call today.",
+        "follow_up": "Hi Sarah - saw you are handling 50 leads a day and follow-ups are slipping. We can have instant qualification and rep alerts live this week. Are you free for a 15-minute call tomorrow?",
         "status": "qualified",
+        "qualified_seconds": 1.4,
     },
     {
         "name": "Amara Okafor",
@@ -26,7 +28,9 @@ SAMPLE_LEADS = [
         "message": "We miss calls after hours and lose patients to competitors. Can you fix this? Available for a call this week.",
         "score": 84,
         "ai_summary": "Clear pain: after-hours missed calls. Available this week. Book demo now.",
+        "follow_up": "Hi Amara - missed after-hours calls are pure lost revenue for the clinic. We can capture and respond within seconds, 24/7. You mentioned this week works - does Thursday suit you?",
         "status": "qualified",
+        "qualified_seconds": 1.1,
     },
     {
         "name": "Michael Chen",
@@ -37,7 +41,9 @@ SAMPLE_LEADS = [
         "message": "Interested in learning more about your services.",
         "score": 55,
         "ai_summary": "Early research stage. No urgency or budget signal. Nurture with a case study.",
+        "follow_up": "Hi Michael - thanks for reaching out. Here is a 2-minute case study on how similar logistics teams cut manual follow-up by 80%. Happy to answer any questions.",
         "status": "nurturing",
+        "qualified_seconds": 0.9,
     },
     {
         "name": "Promo Bot",
@@ -48,16 +54,14 @@ SAMPLE_LEADS = [
         "message": "click here to buy cheap shoes now",
         "score": 5,
         "ai_summary": "Spam. No business intent. Auto-archived.",
+        "follow_up": None,
         "status": "nurturing",
+        "qualified_seconds": 0.6,
     },
 ]
 
 
 def seed_sample_leads() -> None:
-    """
-    Insert clearly-labeled sample leads so the demo always shows
-    the product working. Safe to run on every startup.
-    """
     db = SessionLocal()
     try:
         added = 0

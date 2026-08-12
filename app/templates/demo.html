@@ -23,12 +23,37 @@
 
     <main class="max-w-6xl mx-auto p-6 w-full flex-1">
 
-        <p class="text-slate-600 mb-6">
-            Submit a lead. LeadRamp captures it, scores buying intent, and writes a tactical
-            summary for your sales team — in seconds.
+        <p class="text-slate-600 mb-4">
+            Submit a lead. LeadRamp captures it, scores buying intent, drafts the follow-up,
+            and prepares your sales team to act — in seconds.
         </p>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="flex flex-wrap gap-2 mb-8">
+            <span class="text-xs bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">Real Estate</span>
+            <span class="text-xs bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">Med Spas & Clinics</span>
+            <span class="text-xs bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">Law Firms</span>
+            <span class="text-xs bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">Home Services</span>
+            <span class="text-xs bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">Gyms & Studios</span>
+            <span class="text-xs bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">Recruiters</span>
+            <span class="text-xs bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">B2B Agencies</span>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-4 mb-8">
+            <div class="rounded-xl border border-slate-200 bg-white p-5">
+                <p class="text-xs font-bold text-blue-600 uppercase">1. Capture</p>
+                <p class="text-sm text-slate-600 mt-1">Leads arrive from forms, ads, email, or manual entry.</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white p-5">
+                <p class="text-xs font-bold text-blue-600 uppercase">2. Qualify</p>
+                <p class="text-sm text-slate-600 mt-1">Intent scored 0–100 with a tactical sales summary, in seconds.</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white p-5">
+                <p class="text-xs font-bold text-blue-600 uppercase">3. Act</p>
+                <p class="text-sm text-slate-600 mt-1">A ready-to-send follow-up is drafted and your rep is prepared to close.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm text-center">
                 <p class="text-sm text-slate-500">Total Leads</p>
                 <p class="text-3xl font-extrabold text-slate-900">{{ metrics.total }}</p>
@@ -40,6 +65,12 @@
             <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm text-center">
                 <p class="text-sm text-slate-500">Low Intent / Spam</p>
                 <p class="text-3xl font-extrabold text-red-600">{{ metrics.low }}</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm text-center">
+                <p class="text-sm text-slate-500">Avg. Qualification</p>
+                <p class="text-3xl font-extrabold text-blue-600">
+                    {% if metrics.avg_speed is not none %}{{ metrics.avg_speed }}s{% else %}—{% endif %}
+                </p>
             </div>
         </div>
 
@@ -65,8 +96,18 @@
                     {% else %}
                         bg-red-100 text-red-800
                     {% endif %}">
-                    Lead Score: {{ score }}
+                    Lead Score: {{ score | int }}
                 </div>
+            </div>
+
+            <div class="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold">
+                <span class="bg-green-50 border border-green-200 text-green-700 rounded-full px-2 py-1">✓ Captured</span>
+                <span class="bg-green-50 border border-green-200 text-green-700 rounded-full px-2 py-1">
+                    ✓ Qualified{% if lead.qualified_seconds is not none %} in {{ lead.qualified_seconds }}s{% endif %}
+                </span>
+                {% if lead.follow_up %}
+                <span class="bg-green-50 border border-green-200 text-green-700 rounded-full px-2 py-1">✓ Follow-up ready</span>
+                {% endif %}
             </div>
 
             <div class="mt-4 grid gap-4 md:grid-cols-3">
@@ -85,6 +126,13 @@
                     <p class="mt-1">{{ lead.ai_summary or "Pending summary." }}</p>
                 </div>
             </div>
+
+            {% if lead.follow_up %}
+            <div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+                <p class="text-xs uppercase text-blue-700 font-semibold">Ready-to-send follow-up</p>
+                <p class="mt-2 text-sm text-slate-800 whitespace-pre-line">{{ lead.follow_up }}</p>
+            </div>
+            {% endif %}
         </div>
         {% endif %}
 
@@ -180,8 +228,11 @@
                                         {% else %}
                                             bg-red-100 text-red-800
                                         {% endif %}">
-                                        {{ recent_score }}
+                                        {{ recent_score | int }}
                                     </span>
+                                    {% if recent.qualified_seconds is not none %}
+                                    <span class="block text-xs text-slate-400 mt-1">⚡ {{ recent.qualified_seconds }}s</span>
+                                    {% endif %}
                                 </td>
                                 <td class="py-3 pr-3">
                                     <span class="px-2 py-1 rounded-full text-xs font-semibold capitalize
@@ -210,7 +261,10 @@
 
     <footer class="bg-white border-t border-slate-200 mt-8">
         <div class="max-w-6xl mx-auto p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p class="text-sm text-slate-500">Demo environment. Sample leads shown for illustration.</p>
+            <p class="text-sm text-slate-500">
+                Demo environment. Sample leads shown for illustration.
+                Lead data is processed securely and never sold.
+            </p>
             <a href="mailto:adeolaayodeji4666@gmail.com?subject=LeadRamp%20Setup%20Call"
                 class="bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-700">
                 Book a setup call

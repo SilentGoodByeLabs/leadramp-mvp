@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 from typing import List
 
@@ -10,7 +11,7 @@ from fastapi import (
     Form,
     Request,
 )
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -30,18 +31,17 @@ seed_sample_leads()
 
 app = FastAPI(
     title=APP_NAME,
-    version="0.4.0",
+    version="0.5.0",
     description="Lead intake and follow-up engine for service businesses.",
 )
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "app" / "templates"))
 
 
-from fastapi.responses import RedirectResponse
-
 @app.get("/", include_in_schema=False)
 def read_root():
     return RedirectResponse(url="/demo")
+
 
 @app.get("/health")
 def health():
@@ -57,7 +57,17 @@ def lead_metrics(db: Session) -> dict:
     total = db.query(func.count(Lead.id)).scalar() or 0
     hot = db.query(func.count(Lead.id)).filter(Lead.score >= 70).scalar() or 0
     low = db.query(func.count(Lead.id)).filter(Lead.score < 40).scalar() or 0
-    return {"total": total, "hot": hot, "low": low}
+    avg = (
+        db.query(func.avg(Lead.qualified_seconds))
+        .filter(Lead.qualified_seconds.isnot(None))
+        .scalar()
+    )
+    return {
+        "total": total,
+        "hot": hot,
+        "low": low,
+        "avg_speed": round(avg, 1) if avg else None,
+    }
 
 
 def process_lead_with_ai(
@@ -70,15 +80,19 @@ def process_lead_with_ai(
     db = SessionLocal()
     try:
         logger.info(f"Starting lead qualification for Lead {lead_id}")
+        start = time.time()
         ai_result = qualify_lead(name, company, message, source)
+        elapsed = round(time.time() - start, 2)
 
         lead = db.query(Lead).filter(Lead.id == lead_id).first()
         if lead:
             lead.score = ai_result.get("score", 0)
             lead.ai_summary = ai_result.get("summary", "No summary generated.")
+            lead.follow_up = ai_result.get("follow_up", "")
+            lead.qualified_seconds = elapsed
             lead.status = "qualified" if lead.score >= 70 else "nurturing"
             db.commit()
-            logger.info(f"Lead {lead_id} scored: {lead.score}")
+            logger.info(f"Lead {lead_id} scored: {lead.score} in {elapsed}s")
     except Exception as e:
         logger.error(f"Background lead task failed: {e}")
     finally:
@@ -204,15 +218,19 @@ def demo_submit(
         db.commit()
         db.refresh(lead)
 
+        start = time.time()
         ai_result = qualify_lead(
             lead.name,
             lead.company or "",
             lead.message or "",
             lead.source,
         )
+        elapsed = round(time.time() - start, 2)
 
         lead.score = ai_result.get("score", 0)
         lead.ai_summary = ai_result.get("summary", "No summary generated.")
+        lead.follow_up = ai_result.get("follow_up", "")
+        lead.qualified_seconds = elapsed
         lead.status = "qualified" if lead.score >= 70 else "nurturing"
 
         db.commit()

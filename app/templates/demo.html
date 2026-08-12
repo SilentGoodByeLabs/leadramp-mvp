@@ -3,16 +3,44 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LeadRamp Demo</title>
+    <title>LeadRamp — Live Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-900">
-    <div class="max-w-6xl mx-auto p-6">
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold">LeadRamp Demo</h1>
-            <p class="text-slate-600 mt-1">
-                Submit a lead. The system captures it, automatically qualifies it, and prepares it for follow-up.
-            </p>
+<body class="bg-slate-100 min-h-screen text-slate-900 flex flex-col">
+
+    <header class="bg-white border-b border-slate-200">
+        <div class="max-w-6xl mx-auto p-6 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-xl">L</div>
+                <div>
+                    <h1 class="text-2xl font-bold">LeadRamp</h1>
+                    <p class="text-sm text-slate-500">Speed-to-lead automation for service businesses</p>
+                </div>
+            </div>
+            <span class="hidden md:inline-block text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-3 py-1">Live Demo</span>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-6 w-full flex-1">
+
+        <p class="text-slate-600 mb-6">
+            Submit a lead. LeadRamp captures it, scores buying intent, and writes a tactical
+            summary for your sales team — in seconds.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm text-center">
+                <p class="text-sm text-slate-500">Total Leads</p>
+                <p class="text-3xl font-extrabold text-slate-900">{{ metrics.total }}</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm text-center">
+                <p class="text-sm text-slate-500">Hot Leads (70+)</p>
+                <p class="text-3xl font-extrabold text-green-600">{{ metrics.hot }}</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm text-center">
+                <p class="text-sm text-slate-500">Low Intent / Spam</p>
+                <p class="text-3xl font-extrabold text-red-600">{{ metrics.low }}</p>
+            </div>
         </div>
 
         {% if error %}
@@ -47,16 +75,14 @@
                     <p class="mt-1 font-medium">{{ lead.email or "No email" }}</p>
                     <p class="font-medium">{{ lead.phone or "No phone" }}</p>
                 </div>
-
                 <div class="rounded-lg bg-slate-50 p-4">
                     <p class="text-xs uppercase text-slate-500">Status</p>
                     <p class="mt-1 font-medium capitalize">{{ lead.status }}</p>
                     <p class="text-sm text-slate-600">Source: {{ lead.source }}</p>
                 </div>
-
                 <div class="rounded-lg bg-slate-50 p-4">
                     <p class="text-xs uppercase text-slate-500">Sales Summary</p>
-                    <p class="mt-1">{{ lead.ai_summary or "Pending AI summary." }}</p>
+                    <p class="mt-1">{{ lead.ai_summary or "Pending summary." }}</p>
                 </div>
             </div>
         </div>
@@ -68,73 +94,41 @@
 
                 <form method="post" action="/demo" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1" for="name">
-                            Name *
-                        </label>
-                        <input
-                            id="name"
-                            name="name"
-                            required
-                            minlength="2"
-                            maxlength="120"
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="name">Name *</label>
+                        <input id="name" name="name" required minlength="2" maxlength="120"
                             value="{{ form.name or '' }}"
                             class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Sarah Jenkins"
-                        />
+                            placeholder="Sarah Jenkins" />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1" for="email">
-                            Email
-                        </label>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            maxlength="255"
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="email">Email</label>
+                        <input id="email" name="email" type="email" maxlength="255"
                             value="{{ form.email or '' }}"
                             class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="sarah@jenkinsrealty.com"
-                        />
+                            placeholder="sarah@jenkinsrealty.com" />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1" for="phone">
-                            Phone
-                        </label>
-                        <input
-                            id="phone"
-                            name="phone"
-                            maxlength="50"
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="phone">Phone</label>
+                        <input id="phone" name="phone" maxlength="50"
                             value="{{ form.phone or '' }}"
                             class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="+15551234567"
-                        />
+                            placeholder="+15551234567" />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1" for="company">
-                            Company
-                        </label>
-                        <input
-                            id="company"
-                            name="company"
-                            maxlength="180"
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="company">Company</label>
+                        <input id="company" name="company" maxlength="180"
                             value="{{ form.company or '' }}"
                             class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Jenkins Realty Group"
-                        />
+                            placeholder="Jenkins Realty Group" />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1" for="source">
-                            Lead Source
-                        </label>
-                        <select
-                            id="source"
-                            name="source"
-                            class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="source">Lead Source</label>
+                        <select id="source" name="source"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="demo_page" {% if form.source == "demo_page" %}selected{% endif %}>Demo Page</option>
                             <option value="website_form" {% if form.source == "website_form" %}selected{% endif %}>Website Form</option>
                             <option value="facebook_ad" {% if form.source == "facebook_ad" %}selected{% endif %}>Facebook Ad</option>
@@ -145,23 +139,14 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1" for="message">
-                            Message
-                        </label>
-                        <textarea
-                            id="message"
-                            name="message"
-                            rows="5"
-                            maxlength="5000"
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" maxlength="5000"
                             class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="I need faster lead follow-up. Please send pricing."
-                        >{{ form.message or '' }}</textarea>
+                            placeholder="I need faster lead follow-up. Please send pricing.">{{ form.message or '' }}</textarea>
                     </div>
 
-                    <button
-                        type="submit"
-                        class="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700"
-                    >
+                    <button type="submit"
+                        class="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700">
                         Capture & Qualify Lead
                     </button>
                 </form>
@@ -186,8 +171,30 @@
                             {% set recent_score = recent.score if recent.score is not none else 0 %}
                             <tr class="border-b border-slate-100 align-top">
                                 <td class="py-3 pr-3 font-medium">{{ recent.name }}</td>
-                                <td class="py-3 pr-3">{{ recent_score }}</td>
-                                <td class="py-3 pr-3 capitalize">{{ recent.status }}</td>
+                                <td class="py-3 pr-3">
+                                    <span class="px-2 py-1 rounded-full text-xs font-bold
+                                        {% if recent_score >= 70 %}
+                                            bg-green-100 text-green-800
+                                        {% elif recent_score >= 40 %}
+                                            bg-yellow-100 text-yellow-800
+                                        {% else %}
+                                            bg-red-100 text-red-800
+                                        {% endif %}">
+                                        {{ recent_score }}
+                                    </span>
+                                </td>
+                                <td class="py-3 pr-3">
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold capitalize
+                                        {% if recent.status == 'qualified' %}
+                                            bg-green-50 text-green-700
+                                        {% elif recent.status == 'nurturing' %}
+                                            bg-yellow-50 text-yellow-700
+                                        {% else %}
+                                            bg-slate-100 text-slate-600
+                                        {% endif %}">
+                                        {{ recent.status }}
+                                    </span>
+                                </td>
                                 <td class="py-3 text-slate-600">{{ recent.ai_summary or "Pending..." }}</td>
                             </tr>
                             {% endfor %}
@@ -199,6 +206,16 @@
                 {% endif %}
             </div>
         </div>
-    </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-8">
+        <div class="max-w-6xl mx-auto p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-sm text-slate-500">Demo environment. Sample leads shown for illustration.</p>
+            <a href="mailto:adeolaayodeji4666@gmail.com?subject=LeadRamp%20Setup%20Call"
+                class="bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-700">
+                Book a setup call
+            </a>
+        </div>
+    </footer>
 </body>
 </html>

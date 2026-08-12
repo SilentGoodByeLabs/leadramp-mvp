@@ -12,6 +12,7 @@ from fastapi import (
 )
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.config import APP_NAME, ENVIRONMENT, BASE_DIR
@@ -19,19 +20,22 @@ from app.db import Base, engine, get_db, SessionLocal
 from app.models import Lead
 from app.schemas import LeadCreate, LeadRead
 from app.ai.scorer import qualify_lead
+from app.database.seed import seed_sample_leads
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 Base.metadata.create_all(bind=engine)
+seed_sample_leads()
 
 app = FastAPI(
     title=APP_NAME,
-    version="0.3.1",
+    version="0.4.0",
     description="Lead intake and follow-up engine for service businesses.",
 )
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "app" / "templates"))
+
 
 @app.get("/health")
 def health():
@@ -41,6 +45,14 @@ def health():
         "environment": ENVIRONMENT,
         "ai_enabled": bool(os.getenv("GEMINI_API_KEY")),
     }
+
+
+def lead_metrics(db: Session) -> dict:
+    total = db.query(func.count(Lead.id)).scalar() or 0
+    hot = db.query(func.count(Lead.id)).filter(Lead.score >= 70).scalar() or 0
+    low = db.query(func.count(Lead.id)).filter(Lead.score < 40).scalar() or 0
+    return {"total": total, "hot": hot, "low": low}
+
 
 def process_lead_with_ai(
     lead_id: int,
@@ -66,6 +78,7 @@ def process_lead_with_ai(
     finally:
         db.close()
 
+
 @app.post("/leads", response_model=LeadRead, status_code=status.HTTP_201_CREATED)
 def create_lead(
     payload: LeadCreate,
@@ -90,6 +103,7 @@ def create_lead(
 
     return lead
 
+
 @app.get("/leads", response_model=List[LeadRead])
 def list_leads(limit: int = 20, db: Session = Depends(get_db)):
     safe_limit = min(max(limit, 1), 100)
@@ -100,6 +114,7 @@ def list_leads(limit: int = 20, db: Session = Depends(get_db)):
         .all()
     )
 
+
 def empty_form():
     return {
         "name": "",
@@ -109,6 +124,7 @@ def empty_form():
         "source": "demo_page",
         "message": "",
     }
+
 
 @app.get("/demo", response_class=HTMLResponse)
 def demo_page(request: Request, db: Session = Depends(get_db)):
@@ -127,8 +143,10 @@ def demo_page(request: Request, db: Session = Depends(get_db)):
             "error": None,
             "recent_leads": recent_leads,
             "form": empty_form(),
+            "metrics": lead_metrics(db),
         },
     )
+
 
 @app.post("/demo", response_class=HTMLResponse)
 def demo_submit(
@@ -211,6 +229,7 @@ def demo_submit(
             "error": error,
             "recent_leads": recent_leads,
             "form": form,
+            "metrics": lead_metrics(db),
         },
         status_code=response_status,
     )

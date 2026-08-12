@@ -1,0 +1,84 @@
+import logging
+
+from app.db import SessionLocal
+from app.models import Lead
+
+logger = logging.getLogger(__name__)
+
+SAMPLE_LEADS = [
+    {
+        "name": "Sarah Jenkins",
+        "email": "sarah@jenkinsrealty.com",
+        "phone": "+15559876543",
+        "company": "Jenkins Realty Group",
+        "source": "facebook_ad",
+        "message": "We are getting 50 leads a day and my team is forgetting to call them. I need automation ASAP. What is your pricing?",
+        "score": 92,
+        "ai_summary": "High urgency. 50 leads/day with slow follow-up. Asked for pricing. Call today.",
+        "status": "qualified",
+    },
+    {
+        "name": "Amara Okafor",
+        "email": "amara@brightsmiledental.com",
+        "phone": "+442071234567",
+        "company": "Bright Smile Dental",
+        "source": "google_search",
+        "message": "We miss calls after hours and lose patients to competitors. Can you fix this? Available for a call this week.",
+        "score": 84,
+        "ai_summary": "Clear pain: after-hours missed calls. Available this week. Book demo now.",
+        "status": "qualified",
+    },
+    {
+        "name": "Michael Chen",
+        "email": "m.chen@chenlogistics.com",
+        "phone": "",
+        "company": "Chen Logistics",
+        "source": "website_form",
+        "message": "Interested in learning more about your services.",
+        "score": 55,
+        "ai_summary": "Early research stage. No urgency or budget signal. Nurture with a case study.",
+        "status": "nurturing",
+    },
+    {
+        "name": "Promo Bot",
+        "email": "winner@cheapshoes.biz",
+        "phone": "",
+        "company": "",
+        "source": "website_form",
+        "message": "click here to buy cheap shoes now",
+        "score": 5,
+        "ai_summary": "Spam. No business intent. Auto-archived.",
+        "status": "nurturing",
+    },
+]
+
+
+def seed_sample_leads() -> None:
+    """
+    Insert clearly-labeled sample leads so the demo always shows
+    the product working. Safe to run on every startup.
+    """
+    db = SessionLocal()
+    try:
+        added = 0
+        for item in SAMPLE_LEADS:
+            if item.get("email"):
+                exists = db.query(Lead).filter(Lead.email == item["email"]).first()
+            else:
+                exists = db.query(Lead).filter(Lead.name == item["name"]).first()
+
+            if exists:
+                continue
+
+            db.add(Lead(**item))
+            added += 1
+
+        db.commit()
+
+        if added:
+            logger.info(f"Seeded {added} sample lead(s).")
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Seeding failed: {e}")
+    finally:
+        db.close()
